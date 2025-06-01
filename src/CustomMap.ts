@@ -1,3 +1,5 @@
+import { Loader } from '@googlemaps/js-api-loader';
+
 export interface Mappable {
   location: { lat: number; lng: number };
   markerContent(): string;
@@ -9,13 +11,34 @@ export class CustomMap {
   private isInitialized: boolean = false;
 
   constructor(divId: string) {
-    this.googleMap = new google.maps.Map(
-      document.getElementById(divId) as HTMLElement,
-      {
+    this.initializeMap(divId);
+  }
+
+  private async initializeMap(divId: string): Promise<void> {
+    if (this.isInitialized) return;
+
+    try {
+      const loader = new Loader({
+        apiKey: 'AIzaSyAXwRNFksnxRXxiGVTLeQGaWOyJ7qJzH8M',
+        version: 'weekly',
+        libraries: ['places', 'geometry'],
+      });
+
+      await loader.load();
+
+      const { Map } = (await google.maps.importLibrary(
+        'maps'
+      )) as google.maps.MapsLibrary;
+      this.googleMap = new Map(document.getElementById('map') as HTMLElement, {
         zoom: 1,
         center: { lat: 0, lng: 0 },
-      }
-    );
+      });
+
+      this.isInitialized = true;
+    } catch (error) {
+      console.error('Error loading Google Maps marker library:', error);
+      throw error;
+    }
   }
 
   /**
@@ -23,7 +46,7 @@ export class CustomMap {
    * @param mappable An object that has a location property with lat and lng.
    */
   addMarker(mappable: Mappable): void {
-    const marker = new google.maps.marker.AdvancedMarkerElement({
+    const marker = new google.maps.Marker({
       map: this.googleMap,
       position: {
         lat: mappable.location.lat,
@@ -37,5 +60,9 @@ export class CustomMap {
       });
       infoWindow.open(this.googleMap, marker);
     });
+  }
+
+  get isMapInitialized(): boolean {
+    return this.isInitialized;
   }
 }
