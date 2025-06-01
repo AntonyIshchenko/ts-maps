@@ -19,7 +19,7 @@ export class CustomMap {
 
     try {
       const loader = new Loader({
-        apiKey: 'AIzaSyAXwRNFksnxRXxiGVTLeQGaWOyJ7qJzH8M',
+        apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
         version: 'weekly',
         libraries: ['places', 'geometry'],
       });

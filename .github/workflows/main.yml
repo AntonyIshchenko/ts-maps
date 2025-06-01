@@ -21,6 +21,8 @@ jobs:
         run: npm install
 
       - name: Build
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: npx parcel build index.html --public-url ./ --no-source-maps
 
       - name: Deploy
